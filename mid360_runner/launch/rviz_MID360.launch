@@ -34,7 +34,7 @@
 
 	<group if="$(arg rviz_enable)">
 		<node name="livox_rviz" pkg="rviz" type="rviz" respawn="true"
-				args="-d $(find livox_ros_driver2)/config/display_point_cloud_ROS1.rviz"/>
+				args="-d $(find mid360_runner)/rviz/lidar.rviz"/>
     </group>
 
 	<group if="$(arg rosbag_enable)">
