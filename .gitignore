@@ -1,3 +1,10 @@
+# rosbags and data files
+bags/
+data/
+*.bag
+
+
+# ROS1 gitignore file
 devel/
 logs/
 build/
