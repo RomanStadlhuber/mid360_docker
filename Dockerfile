@@ -39,15 +39,22 @@ WORKDIR /catkin_ws/src
 # clone the driver repo
 RUN git clone https://github.com/Livox-SDK/livox_ros_driver2.git
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && /catkin_ws/src/livox_ros_driver2/build.sh ROS1"
-FROM mid360_driver AS development
+# install and build the ETHz fork of FAST_LIO which supports the newer SDK
+FROM mid360_driver AS fast_lio_ethz_fork
+WORKDIR /catkin_ws/src
+# NOTE: the repo constains submodules (i.e. their iKD-rree and iEKF implementation)
+RUN git clone --recurse-submodules -j8 https://github.com/ethz-asl/fast_lio.git
+WORKDIR /catkin_ws
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && source /catkin_ws/devel/setup.bash && catkin_make" 
+FROM fast_lio_ethz_fork AS development
 WORKDIR /catkin_ws
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
 RUN echo "source /catkin_ws/devel/setup.bash" >> /root/.bashrc
 RUN apt-get update && apt-get install -y -q iputils-ping && \
     rm -rf /var/lib/apt/lists/*
-FROM base as delpoy
-WORKDIR /catkin_ws
-# copy the package containing the lidar launch files
-COPY ./mid360_runner /catkin_ws/src/mid360_runner
-# build to register the runner package
-RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
+# FROM base as deploy
+# WORKDIR /catkin_ws
+# # copy the package containing the lidar launch files
+# COPY ./mid360_runner /catkin_ws/src/mid360_runner
+# # build to register the runner package
+# RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
